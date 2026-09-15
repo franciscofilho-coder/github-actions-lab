@@ -1,4 +1,5 @@
 import pytest
+
 from src.validador import limpar_cpf, validar_cpf
 
 def test_limpar_cpf_remove_formatacao():
