@@ -1,0 +1,46 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  qualidade-e-testes:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+        - name: Verificar o código
+          uses: actions/checkout@v4
+        - name: Configurar Python ${{ matrix.python-version }}
+          uses: actions/setup-python@v5
+          with:
+            python-version: ${{ matrix.python-version }}
+            cache: 'pip'
+        - name: Instalar dependências
+          run: pip install -r requirements-dev.txt
+        - name: Verificar estilo com Ruff
+          run: ruff check .
+        - name: Executar testes com cobertura
+          run: pytest --cov=src --corv-report=term-missing  
+  deploy:
+    needs: qualidade-e-testes
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Verificar o código
+        uses: actions/checkout@v4x
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Publicar aplicação
+        run: | 
+          echo "Todos os testes rodaram e passaram nas versões 3.10, 3.11 e 3.12"
+          echo "Publicando a aplicação em Produção..."
+          # Aqui entraria os comandos para o deploy
+      - name: Testes de fumaça pós deploy
+        run: |
+          python -c "from src.validador import validar_cpf; assert validar_cpf('529.982.247-25'); assert not validar_cpf('111.111.111-11'); print('Smoke test OK: validador respondendo corretamente')"
