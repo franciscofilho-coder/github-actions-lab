@@ -25,7 +25,7 @@ jobs:
         - name: Verificar estilo com Ruff
           run: ruff check .
         - name: Executar testes com cobertura
-          run: pytest --cov=src --corv-report=term-missing  
+          run: pytest --cov=src --cov-report=term-missing
   deploy:
     needs: qualidade-e-testes
     runs-on: ubuntu-latest
